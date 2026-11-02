@@ -1,6 +1,7 @@
 # QR Kód Generátor
 
 Webová aplikace pro generování personalizovaných QR kódů. Postaveno na React, TypeScript, Vite a Tailwind CSS s designovým systémem Fluent 2.
+Try it here: [https://qr-kod-generator-stc.simonstohs99.workers.dev/](https://qr-kod-generator-stc.simonstohs99.workers.dev/)
 
 ## Funkce
 
