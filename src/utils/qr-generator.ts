@@ -78,6 +78,9 @@ export async function generateQRToCanvas(
 /**
  * Generates a QR code as SVG string.
  */
+/**
+ * Generates a QR code as SVG string.
+ */
 export async function generateQRToSVG(
   params: QRParams
 ): Promise<GenerationResult> {
@@ -115,10 +118,19 @@ export async function generateQRToSVG(
         return { success: false, error: 'Nepodařilo se načíst logo.' };
       }
 
+      const viewBoxMatch = svgString.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+      if (!viewBoxMatch) {
+        return { success: false, error: 'Nepodařilo se analyzovat souřadnice SVG.' };
+      }
+      const viewBoxSize = parseFloat(viewBoxMatch[1]);
+
       const maxFraction = maxLogoFraction(params.errorCorrectionLevel);
-      const maxLogoDim = Math.floor(
-        Math.sqrt(maxFraction) * params.resolution
-      );
+      const maxOverlayDim = Math.sqrt(maxFraction) * viewBoxSize;
+
+      // Padding přizpůsobený velikosti vnitřních modulů (cca 0.5 - 1 modul)
+      const padding = Math.max(0.5, viewBoxSize * 0.015);
+
+      const maxLogoDim = maxOverlayDim - (padding * 2);
 
       // Scale logo to fit
       const scale = Math.min(
@@ -126,11 +138,13 @@ export async function generateQRToSVG(
         maxLogoDim / logoSizeResult.height,
         1
       );
-      const logoW = Math.floor(logoSizeResult.width * scale);
-      const logoH = Math.floor(logoSizeResult.height * scale);
 
+      const logoW = logoSizeResult.width * scale;
+      const logoH = logoSizeResult.height * scale;
+
+      // Validation
       if (
-        !isLogoSizeValid(logoW, logoH, params.resolution, params.errorCorrectionLevel)
+        !isLogoSizeValid(logoW, logoH, viewBoxSize, params.errorCorrectionLevel)
       ) {
         return {
           success: false,
@@ -138,12 +152,11 @@ export async function generateQRToSVG(
         };
       }
 
-      const logoX = Math.floor((params.resolution - logoW) / 2);
-      const logoY = Math.floor((params.resolution - logoH) / 2);
+      const logoX = (viewBoxSize - logoW) / 2;
+      const logoY = (viewBoxSize - logoH) / 2;
+      const rx = viewBoxSize * 0.015; 
 
-      // Add white background rect and logo image before closing </svg>
-      const padding = 4;
-      const bgRect = `<rect x="${logoX - padding}" y="${logoY - padding}" width="${logoW + padding * 2}" height="${logoH + padding * 2}" fill="${params.backgroundColor}" rx="4"/>`;
+      const bgRect = `<rect x="${logoX - padding}" y="${logoY - padding}" width="${logoW + padding * 2}" height="${logoH + padding * 2}" fill="${params.backgroundColor}" rx="${rx}"/>`;
       const logoImage = `<image x="${logoX}" y="${logoY}" width="${logoW}" height="${logoH}" href="${params.logoDataUrl}" />`;
 
       svgString = svgString.replace('</svg>', `${bgRect}${logoImage}</svg>`);
@@ -157,7 +170,6 @@ export async function generateQRToSVG(
     };
   }
 }
-
 /**
  * Overlays a logo image onto the center of a QR code canvas.
  */
@@ -169,7 +181,7 @@ async function overlayLogo(
 ): Promise<GenerationResult> {
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => {
+img.onload = () => {
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         resolve({ success: false, error: 'Nelze získat canvas context.' });
@@ -178,14 +190,14 @@ async function overlayLogo(
 
       const canvasSize = canvas.width;
       const maxFraction = maxLogoFraction(ecLevel);
-      const maxLogoDim = Math.floor(Math.sqrt(maxFraction) * canvasSize);
+      const maxOverlayDim = Math.floor(Math.sqrt(maxFraction) * canvasSize);
+
+      const padding = Math.max(4, Math.floor(canvasSize * 0.01));
+
+      const maxLogoDim = maxOverlayDim - (padding * 2);
 
       // Scale logo proportionally
-      const scale = Math.min(
-        maxLogoDim / img.naturalWidth,
-        maxLogoDim / img.naturalHeight,
-        1
-      );
+      const scale = Math.min( maxLogoDim / img.naturalWidth, maxLogoDim / img.naturalHeight, 1);
       const logoW = Math.floor(img.naturalWidth * scale);
       const logoH = Math.floor(img.naturalHeight * scale);
 
@@ -201,7 +213,6 @@ async function overlayLogo(
       const y = Math.floor((canvasSize - logoH) / 2);
 
       // Draw background behind logo for readability
-      const padding = Math.max(4, Math.floor(canvasSize * 0.01));
       ctx.fillStyle = bgColor;
       ctx.beginPath();
       const r = Math.floor(canvasSize * 0.01);

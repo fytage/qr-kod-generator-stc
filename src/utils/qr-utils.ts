@@ -73,8 +73,8 @@ export type ErrorCorrectionLevel = keyof typeof ERROR_CORRECTION_LEVELS;
  */
 export function maxLogoFraction(ecLevel: ErrorCorrectionLevel): number {
   const capacity = ERROR_CORRECTION_LEVELS[ecLevel].capacity;
-  // Use ~80% of the available error correction capacity for safety
-  return capacity * 0.8;
+  // Use ~35% of the available error correction capacity for safety
+  return capacity * 0.35;
 }
 
 /**
