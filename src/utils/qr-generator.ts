@@ -40,6 +40,19 @@ export async function generateQRToCanvas(
     };
   }
 
+  //2. Validate minimal QR code size
+  const qrData = QRCode.create(params.text, { errorCorrectionLevel: params.errorCorrectionLevel });
+  const totalModules = qrData.modules.size + 4; 
+  const minSafeResolution = totalModules * 3; 
+
+  if (params.resolution < minSafeResolution) {
+    return {
+      success: false,
+      error: `Zvolené rozlišení (${params.resolution} px) je pro takto dlouhý text příliš malé a QR kód by byl nečitelný. Zvyšte rozlišení alespoň na ${minSafeResolution} px, nebo snižte úroveň korekce chyb.`,
+    };
+  }
+
+
   try {
     const canvas = document.createElement('canvas');
 
@@ -96,6 +109,17 @@ export async function generateQRToSVG(
     return {
       success: false,
       error: 'Zadejte text nebo URL pro vygenerování QR kódu.',
+    };
+  }
+
+  const qrData = QRCode.create(params.text, { errorCorrectionLevel: params.errorCorrectionLevel });
+  const totalModules = qrData.modules.size + 4; 
+  const minSafeResolution = totalModules * 3; 
+
+  if (params.resolution < minSafeResolution) {
+    return {
+      success: false,
+      error: `Zvolené rozlišení (${params.resolution} px) je pro takto dlouhý text příliš malé a QR kód by byl nečitelný. Zvyšte rozlišení alespoň na ${minSafeResolution} px, nebo snižte úroveň korekce chyb.`,
     };
   }
 
