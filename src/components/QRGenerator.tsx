@@ -49,8 +49,33 @@ const TrashIcon = () => (
   </svg>
 );
 
+const SunIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM8 2V1.5m0 13v-.5M12.24 3.76l.36-.36m-9.2.36-.36-.36M14 8h.5m-13 0h.5m10.24 4.24.36.36m-9.2-.36-.36.36" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const MoonIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 10.5a5.5 5.5 0 1 1-8-8 6 6 0 1 0 8 8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 export default function QRGenerator() {
   const [params, setParams] = useState<QRParams>(DEFAULT_PARAMS);
+
+  const [isDarkMode, setIsDarkMode] = useState(() => 
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
+  
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+  
   const [result, setResult] = useState<GenerationResult | null>(null);
   const [previewDataUrl, setPreviewDataUrl] = useState<string | null>(null);
   const [previewSvg, setPreviewSvg] = useState<string | null>(null);
@@ -168,15 +193,26 @@ export default function QRGenerator() {
     <div className="min-h-screen bg-[var(--color-neutral-background-2)]">
       {/* Header */}
       <header className="bg-[var(--color-neutral-background-1)] border-b border-[var(--color-neutral-stroke-2)] shadow-[var(--shadow-2)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-3">
-          <div className="text-[var(--color-brand-primary)]">
-            <QRIcon />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="text-[var(--color-brand-primary)]">
+              <QRIcon />
+            </div>
+            <h1
+              className="text-[var(--font-size-base-600)] font-[var(--font-weight-semibold)] text-[var(--color-neutral-foreground-1)] leading-[var(--line-height-base-600)]"
+            >
+              QR Kód Generátor
+            </h1>
           </div>
-          <h1
-            className="text-[var(--font-size-base-600)] font-[var(--font-weight-semibold)] text-[var(--color-neutral-foreground-1)] leading-[var(--line-height-base-600)]"
+          
+          {/* NOVÉ: Tlačítko pro přepnutí motivu */}
+          <button 
+            className="fluent-button !min-h-[36px] px-3" 
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            title={isDarkMode ? "Přepnout na světlý režim" : "Přepnout na tmavý režim"}
           >
-            QR Kód Generátor
-          </h1>
+            {isDarkMode ? <SunIcon /> : <MoonIcon />}
+          </button>
         </div>
       </header>
 
@@ -529,8 +565,7 @@ export default function QRGenerator() {
       {/* Footer */}
       <footer className="border-t border-[var(--color-neutral-stroke-2)] mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-[var(--font-size-base-200)] text-[var(--color-neutral-foreground-3)]">
-          QR Kód Generátor • Vytvořeno s React, TypeScript, Vite a Tailwind CSS •
-          Design systém Fluent 2
+          QR Kód Generátor • Vytvořeno pro A&I Lab
         </div>
       </footer>
     </div>

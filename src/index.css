@@ -49,7 +49,33 @@
   --spacing-xl: 20px;
   --spacing-xxl: 24px;
   --spacing-xxxl: 32px;
+
+  --checker-1: #e0e0e0;
+  --checker-2: #ffffff;
 }
+
+
+.dark {
+  --color-brand-primary: #479ef5;
+  --color-brand-primary-hover: #62abf5;
+  --color-brand-primary-active: #2886de;
+  --color-neutral-background-1: #292929;
+  --color-neutral-background-2: #141414;
+  --color-neutral-background-3: #1f1f1f;
+  --color-neutral-foreground-1: #ffffff;
+  --color-neutral-foreground-2: #d6d6d6;
+  --color-neutral-foreground-3: #adadad;
+  --color-neutral-foreground-disabled: #5c5c5c;
+  --color-neutral-stroke-1: #424242;
+  --color-neutral-stroke-2: #333333;
+  --color-neutral-stroke-accessible: #9e9e9e;
+  --color-status-danger: #f1707b;
+  --color-status-success: #54b054;
+  --color-status-warning: #fce100;
+  --checker-1: #292929;
+  --checker-2: #1f1f1f;
+}
+
 
 * {
   box-sizing: border-box;
@@ -373,7 +399,7 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 280px;
-  background: repeating-conic-gradient(#e0e0e0 0% 25%, #ffffff 0% 50%) 50% / 16px 16px;
+  background: repeating-conic-gradient(var(--checker-1) 0% 25%, var(--checker-2) 0% 50%) 50% / 16px 16px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-neutral-stroke-2);
   padding: var(--spacing-xxl);
